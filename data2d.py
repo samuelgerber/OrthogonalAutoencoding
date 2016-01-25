@@ -9,10 +9,9 @@ class Sine(object):
         self.npoints = npoints
         self.sigma = sigma
         phi = np.random.uniform(0, 1, npoints) * np.pi
-        arc = np.vstack([  np.cos(phi)/1.5, (np.sin(phi)-0.5)/1.5, np.zeros(npoints) ] )
+        arc = np.vstack([  np.cos(phi)/1.5, (np.sin(phi)-0.5)/1.5 ] )
         if self.sigma > 0 :
            arc = arc + np.random.normal(0, self.sigma, arc.shape)
-           arc[2, :] = 0
 
         self.data = np.transpose(arc)
 
@@ -25,7 +24,7 @@ class Sine(object):
         return self.data[index, :]
 
     def getDimension(self):
-        return 3
+        return 2
 
 
 
@@ -54,7 +53,7 @@ class SineSnake(object):
         
     
     def getDimension(self):
-        return 3
+        return 2
 
 
 
@@ -86,32 +85,6 @@ class Spiral(object):
     
     def getDimension(self):
         return 2
-
-
-class Grid(object):
-
-    def __init__(self, npoints, sigma=0.1):
-        self.npoints = npoints
-        self.sigma = sigma
-        
-        xaxis = np.linspace(-0.9, 0.9, int( np.sqrt(npoints) ) )
-        yaxis = np.linspace(-0.9, 0.9, int( np.sqrt(npoints) ) )
-        x, y = np.meshgrid(xaxis, yaxis)
-        x = x.flatten()
-        y = y.flatten()
-        grid = np.vstack( [ x, y, np.random.normal(0, self.sigma, [len(x)]) ] ) 
-        
-        self.data = np.transpose(grid)
-
-    def getData(self):
-        return self.data
-
-    def getBatch(self, npoints):
-        index = np.random.random_integers(0, self.data.shape[0]-1, npoints)
-        return self.data[index, :]
-    
-    def getDimension(self):
-        return 3
 
 
 

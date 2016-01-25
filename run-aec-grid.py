@@ -5,7 +5,7 @@ import argparse
 import time
 
 import ae
-import data2d
+import data3d
 
 #fix seed
 tf.set_random_seed(10)
@@ -63,7 +63,7 @@ f = open(args.file + "/log.txt", 'w')
 
 
 
-data = data2d.Grid(npoints=args.npoints, sigma = args.noise)
+data = data3d.Grid(npoints=args.npoints, sigma = args.noise)
 
 
 

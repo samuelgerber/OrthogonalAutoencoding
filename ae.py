@@ -16,6 +16,7 @@ class AutoEncoder(object):
         self.tortho = "squared"
     
         self.rate = 0
+        self.maxFactor = 1
         self.factor = 1
 
         self._lrate = 1
@@ -105,7 +106,7 @@ class AutoEncoder(object):
         
 
 
-        ##endocidng and decoding
+        ##endcoding and decoding
 
         self.z = [ tf.add(self.x, self.noise) ]
         for d in range( len( self.W ) )  :
@@ -131,6 +132,7 @@ class AutoEncoder(object):
         self.residual  = self.x - self.xr[-1] 
         self.residual2 = tf.square( self.residual  )
         self.l2loss = tf.reduce_mean( self.residual2  ) 
+        #self.l2loss = tf.square( tf.reduce_mean( self.residual  ) )  
        
         ##joint loss
         self.loss = self.l2loss
@@ -144,20 +146,21 @@ class AutoEncoder(object):
             self.Jparts[d].append( tf.mul( 1 - tf.square( self.z[1]), 
                                    tf.slice( self.W[0], [d, 0],[1,-1] ) ) ) 
             for i in range( 1, len(self.W) ):
-                   self.Jparts[d].append( tf.mul( 1 - tf.square( self.z[i+1]), 
+                   self.Jparts[d].append( tf.mul( 1 - tf.square( self.z[i+1] ), 
                                           tf.matmul( self.Jparts[d][-1], self.W[i] ) ) ) 
             for i in range( len(self.Wt) ):
                    self.Jparts[d].append( tf.mul( 1 - tf.square( self.xr[i+1] ),
                                           tf.matmul( self.Jparts[d][-1], self.Wt[i] ) ) )
-               #self.Jparts[d].append( tf.matmul( self.Jparts[d][-1], self.Wl ) ) 
+                  #self.Jparts[d].append( tf.matmul( self.Jparts[d][-1], self.Wl ) ) 
 
         #compute Frobenius norm
         self.JF = tf.constant( 0., shape=[1] ) 
         for J in self.Jparts:
             self.JF = self.JF + tf.reduce_sum( tf.square( J[-1] ), 1 )
+            
 
         if self.gamma > 0:
-            self.Jloss = tf.square( self.gamma - tf.reduce_mean( tf.sqrt(self.JF) )  ) 
+            self.Jloss = tf.square( self.gamma  - tf.reduce_mean( self.JF )  ) 
         else:
             self.Jloss = tf.reduce_mean( self.JF )   
         
@@ -177,11 +180,11 @@ class AutoEncoder(object):
         #self.o.append( tf.matmul( self.o[-1], self.Wl ) )
 
         rl2 = tf.reduce_sum( tf.square( self.o[0] ), 1) 
-        self.ortho = tf.reduce_mean(   tf.reduce_sum( tf.square( self.o[-1] ), 1) / rl2 )
+        self.ortho = tf.reduce_mean( tf.reduce_sum( tf.square( self.o[-1] ), 1) / rl2 )
         if self.tortho == "squared" :
             self.oloss = self.ortho
         elif self.tortho == "sqrt":
-            self.oloss = tf.reduce_mean(   tf.reduce_sum( tf.square( self.o[-1] ), 1) / tf.sqrt(rl2) )
+            self.oloss = tf.reduce_mean( tf.reduce_sum( tf.square( self.o[-1] ), 1) / tf.sqrt(rl2) )
         else:
             self.oloss = tf.reduce_mean( tf.square( self.o[-1] ) )
         #self.oloss = tf.reduce_mean( tf.sqrt( tf.square( self.o[-1] ) ) )
@@ -315,7 +318,7 @@ class AutoEncoder(object):
            
            
            #self.alpha = 0.1/l
-           self.factor = min(self.factor + self.rate, 1)
+           self.factor = min(self.factor + self.rate, self.maxFactor)
        
        l, rl, ol, jl, jf, o = session.run( [ self.loss, self.l2loss, self.oloss,
                                           self.Jloss, self.JF, self.ortho ], feed_dict={ self.x: inp, 

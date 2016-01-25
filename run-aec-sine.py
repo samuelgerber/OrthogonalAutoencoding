@@ -86,7 +86,7 @@ aec.beta = args.beta
 aec.gamma = args.gamma
 aec.rate = args.frate
 aec.factor = args.factor
-aec.setup( sdev=args.weights, lrate=args.lrate)
+aec.setup( sdev=args.weights, lrate=args.lrate )
 
 
 
@@ -96,8 +96,7 @@ aec.setup( sdev=args.weights, lrate=args.lrate)
 
 def polargrid(radii = np.linspace(0.05, 1.5, 20), phi = np.linspace(0, np.pi,
     101), every=5, xrVar = aec.xr[-1] ) :
-    arc = np.vstack([  np.cos(phi), np.sin(phi), np.zeros(len(phi) ) ] )
-    print arc.shape
+    arc = np.vstack([  np.cos(phi), np.sin(phi)  ] )
     arcs = []
     orcs = []
     for r in radii:
@@ -113,8 +112,8 @@ def polargrid(radii = np.linspace(0.05, 1.5, 20), phi = np.linspace(0, np.pi,
    
     if every < len(phi):
         for i in range( int( len(phi)/every)+1 ):
-            l = np.zeros( [len(arcs), 3] )
-            lo = np.zeros( [len(arcs), 3] )
+            l = np.zeros( [len(arcs), 2] )
+            lo = np.zeros( [len(arcs), 2] )
             for j in range( len(arcs) ):
                 l[j,:] = arcs[j][i*every, :]
                 lo[j,:] = orcs[j][:, i*every]
