@@ -88,15 +88,15 @@ aec.setup( sdev=args.weights, lrate=args.lrate)
 
 def spiralline(npoints = 10000) :
 
-    phi = np.linspace(0.5,3, npoints)    
+    phi = np.linspace(0.5,3.5, npoints)    
     arc = np.vstack([  np.cos(phi*np.pi), np.sin(phi*np.pi) ] ) * (0.1+phi/3.5)
     arc = arc / 1.5
     arc = np.transpose(arc)
 
     xr = aec.xr[-1].eval( feed_dict={ aec.x: arc, 
                                       aec.noise: np.zeros(arc.shape) }) 
-    plt.plot(xr[:,0], xr[:,1], color="0.2", linewidth=1.5, zorder=2)
-    plt.plot(arc[:, 0], arc[:,1], color="0.8", linewidth=1, zorder=1)
+    plt.plot(xr[:,0], xr[:,1], color="0.2", linewidth=2.5, zorder=2)
+    plt.plot(arc[:, 0], arc[:,1], color="0.8", linewidth=2, zorder=1)
 
 
 def polargrid(radii = np.linspace(0.05, 1.4, 20), phi = np.linspace(0, 2*np.pi, 101), every=5 ) :
@@ -167,8 +167,8 @@ with tf.Session() as session:
                                       aec.noise: np.zeros(x.shape)  })
     plt.scatter(rx[:,0], rx[:, 1], c="#F29E0C", marker=".", s=300, zorder=4, alpha=0.5)
     
-    #spiralline() 
-    polargrid()
+    spiralline() 
+    #polargrid()
      
     plt.axis('scaled')
     plt.tick_params(axis='both', which='major', labelsize=18)

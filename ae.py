@@ -34,6 +34,7 @@ class AutoEncoder(object):
         #Encoding vars
         self.W =  []
         self.b =  []
+
         #Decoding vars
         self.Wt = []
         self.bt = []
@@ -42,8 +43,6 @@ class AutoEncoder(object):
     def addDimension( self, dim ):
         self.dimensions.append(dim)
             
-
-
 
     def layerwise( self ):
         self.lxr = []
@@ -65,8 +64,6 @@ class AutoEncoder(object):
             tmpLoss = tmpLoss +  tf.reduce_mean( tf.square(tmp - self.x) ) 
             
             self.loptimizer.append( tf.train.AdamOptimizer(1e-4).minimize( tmpLoss   ) ) 
-
-
 
 
     def setup( self, sdev=0.2, lrate = 0.00002 ):
@@ -147,7 +144,8 @@ class AutoEncoder(object):
                                    tf.slice( self.W[0], [d, 0],[1,-1] ) ) ) 
             for i in range( 1, len(self.W) ):
                    self.Jparts[d].append( tf.mul( 1 - tf.square( self.z[i+1] ), 
-                                          tf.matmul( self.Jparts[d][-1], self.W[i] ) ) ) 
+                                          tf.matmul( self.Jparts[d][-1], self.W[i] ) ) )
+
             for i in range( len(self.Wt) ):
                    self.Jparts[d].append( tf.mul( 1 - tf.square( self.xr[i+1] ),
                                           tf.matmul( self.Jparts[d][-1], self.Wt[i] ) ) )
@@ -175,6 +173,7 @@ class AutoEncoder(object):
            
         for i in range( len( self.W  ) ) :
             self.o.append( tf.mul( 1 - tf.square( self.z[i+1] ), tf.matmul( self.o[-1], self.W[i]   ) ) )
+
         for i in range( len( self.Wt ) ) :
             self.o.append( tf.mul( 1 - tf.square( self.xr[i+1] ), tf.matmul( self.o[-1], self.Wt[i] ) ) )
         #self.o.append( tf.matmul( self.o[-1], self.Wl ) )
@@ -196,8 +195,8 @@ class AutoEncoder(object):
 
 
         #optmizer
-        #self.optimizer = tf.train.AdamOptimizer(learning_rate = lrate, beta1=0.3, beta2=0.31).minimize( self.loss ) 
-        self.optimizer = tf.train.AdamOptimizer(learning_rate = lrate).minimize( self.loss ) 
+        #self.optimizer = tf.train.AdamOptimizer( learning_rate = lrate, beta1=0.3, beta2=0.31).minimize( self.loss ) 
+        self.optimizer = tf.train.AdamOptimizer( learning_rate = lrate ).minimize( self.loss ) 
         #self.optimizer = tf.train.GradientDescentOptimizer( lrate ).minimize( self.loss )
         
     
@@ -304,7 +303,7 @@ class AutoEncoder(object):
               inp = data.getBatch(self.stochastic)
 
            if self.sigma > 0:
-              #noise = np.random.uniform(-self.sigma, self.sigma, inp.shape) 
+              #noise = np.random.uniform(-self.sigma, self.sigma, inp.shape)
               noise = np.random.normal(0, self.sigma, inp.shape) 
            else:
               noise = np.zeros(inp.shape) 

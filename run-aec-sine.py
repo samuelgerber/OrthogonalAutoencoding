@@ -9,7 +9,7 @@ import data2d
 
 #fix seed
 tf.set_random_seed(10)
-np.random.seed(1)
+np.random.seed(2)
 
 parser = argparse.ArgumentParser(description='Autoencoder for spiral data set.')
 parser.add_argument('--npoints', metavar='N', type=int, nargs='?', default=300,
@@ -44,7 +44,7 @@ parser.add_argument('--frate', type=float, nargs='?', default=0.,
                    help='Increase gobal factor after every iteration by frate')
 
 parser.add_argument('--lrate', type=float, nargs='?', default=0.00001,
-                   help='Learning rate fro Adam optimizer')
+                   help='Learning rate for Adam optimizer')
 
 
 parser.add_argument('--outer', type=int, nargs='?', default=40,
@@ -92,7 +92,18 @@ aec.setup( sdev=args.weights, lrate=args.lrate )
 
 
 
+def sineline(npoints = 10000) :
 
+    phi = np.linspace(0, np.pi, npoints)    
+    arc = np.vstack([  np.cos(phi), np.sin(phi)  ] )
+    arc[0,:] = arc[0,:] / 1.5
+    arc[1,:] = (arc[1,:] -0.5) / 1.5
+    arc = np.transpose(arc)
+
+    xr = aec.xr[-1].eval( feed_dict={ aec.x: arc, 
+                                      aec.noise: np.zeros(arc.shape) }) 
+    plt.plot(xr[:,0], xr[:,1], color="0.2", linewidth=2.5, zorder=2)
+    plt.plot(arc[:, 0], arc[:,1], color="0.8", linewidth=2, zorder=1)
 
 def polargrid(radii = np.linspace(0.05, 1.5, 20), phi = np.linspace(0, np.pi,
     101), every=5, xrVar = aec.xr[-1] ) :
@@ -164,7 +175,8 @@ with tf.Session() as session:
                                       aec.noise: np.zeros(x.shape)  })
     plt.scatter(rx[:,0], rx[:, 1], c="#F29E0C", marker=".", s=300, zorder=4, alpha=0.5)
     
-    polargrid() 
+    #polargrid()
+    sineline()
      
     plt.axis('scaled')
     plt.tick_params( axis='both', which='major', labelsize=18 )
