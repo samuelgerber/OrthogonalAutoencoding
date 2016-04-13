@@ -175,8 +175,8 @@ with tf.Session() as session:
                                       aec.noise: np.zeros(x.shape)  })
     plt.scatter(rx[:,0], rx[:, 1], c="#F29E0C", marker=".", s=300, zorder=4, alpha=0.5)
     
-    #polargrid()
-    sineline()
+    polargrid()
+    #sineline()
      
     plt.axis('scaled')
     plt.tick_params( axis='both', which='major', labelsize=18 )
