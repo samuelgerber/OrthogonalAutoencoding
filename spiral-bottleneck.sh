@@ -1,6 +1,6 @@
 mkdir spiral-bottleneck-1
 python run-aec-spiral.py \
-  --dimension 100 200 400 200 100 1\
+  --dimension 10 200 200 400 200 200 10 1\
   --alpha 0. \
   --beta 0. \
   --gamma 0. \
