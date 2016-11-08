@@ -67,8 +67,10 @@ f = open(args.file + "/log.txt", 'w')
 
 if args.width > 0.:
     data = data2d.SineSnake(npoints=args.npoints, width = args.width, sigma = args.noise)
+    testdata = data2d.SineSnake(npoints=10000, width = args.width, sigma = args.noise)
 else:
     data = data2d.Sine(npoints=args.npoints, sigma = args.noise)
+    testdata = data2d.Sine(npoints=10000, sigma = args.noise)
 
 
 
@@ -151,10 +153,13 @@ with tf.Session() as session:
   plt.clf()
   #plt.show()
  
+  trainRes = np.zeros((args.outer, 6))
+  testRes = np.zeros((args.outer, 6))
+  
   tStart = time.clock()
   for i in range(args.outer):
 
-    l, rl, ol, jl, jf, o = aec.optimize(session, data, args.inner) 
+    l, rl, ol, jl, jf, o, tl, trl, tol, tjl, tjf, to = aec.optimize(session, data, args.inner, testdata) 
     tCurrent = time.clock()
     f.write( "time elpased " + str(tCurrent - tStart) + "\n"  )
     #f.write( "train lloss %s" % ll
@@ -191,8 +196,24 @@ with tf.Session() as session:
     f.write("Plotting time " + str(tCurrent2 -  tCurrent) + "\n\n")
     f.flush()
 
+    trainRes[i, :] = np.array(  [l,  rl,  ol,  jl,  np.mean(np.sqrt(jf)),  o] )
+    testRes[i, :]  = np.array( [tl, trl, tol, tjl, np.mean(np.sqrt(tjf)), to] )
   
+f.close() 
 
+plt.tick_params(axis='both', which='major', labelsize=24)
+plt.tick_params(axis='both', which='minor', labelsize=17)
+plt.plot( np.array(range(args.outer)) , 
+          np.sqrt( trainRes[:, 1] ), c="#028C2F", linewidth=4)
+plt.plot( np.array(range(args.outer)) , 
+          np.sqrt( testRes[:, 1] ),  c="#3C007E", linewidth=4, ls="--")
+plt.xlabel('Iterations (in {0})'.format(args.inner), fontsize=30)
+plt.ylabel('Root mean square error', fontsize=30)
+plt.ylim( ymin = 0, ymax=0.35 )
+plt.tight_layout()
+plt.savefig( args.file + "/loss.pdf" )
+plt.clf()
+  
     
 
 

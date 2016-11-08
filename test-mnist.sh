@@ -12,8 +12,8 @@ python run-aec-mnist.py \
   --factor 1 \
   --frate 0 \
   --lrate 0.00001 \
-  --inner 200 \
-  --outer 100 \
+  --inner 1000 \
+  --outer 20 \
   --file './mnist-ortho-1'
 
 

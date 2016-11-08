@@ -14,14 +14,14 @@ import mnistdata
 tf.set_random_seed(10)
 np.random.seed(2)
 
-parser = argparse.ArgumentParser(description='Autoencoder for spiral data set.')
-parser.add_argument('--npoints', metavar='N', type=int, nargs='?', default=300,
-                   help='number of points in spiral data')
-parser.add_argument('--noise', type=float, nargs='?', default=0.03,
+parser = argparse.ArgumentParser(description='Autoencoder for MNIST data set.')
+
+parser.add_argument('--noise', type=float, nargs='?', default=20,
                    help='amount of noise added to data')
 
 parser.add_argument('--dimension', type=int, nargs='+',
                    help='Layers of the autoencoder')
+
 parser.add_argument('--weights', type=float, nargs='?', default=0.2,
                    help='Setup standard deviation for weight initalization')
 
@@ -64,7 +64,8 @@ f.close()
 
 f = open(args.file + "/log.txt", 'w')
 
-data = mnistdata.MnistNines()
+data = mnistdata.MnistNines(percentage=(0,0.75) )
+testdata = mnistdata.MnistNines(percentage=(0.75, 1) ) 
 
 
 #setup autoencoder
@@ -85,7 +86,16 @@ aec.setup( sdev=args.weights, lrate=args.lrate )
 
 
 
-x =  data.getData()
+
+trainRes = np.zeros((args.outer, 6))
+testRes = np.zeros((args.outer, 6))
+
+x = data.getData()
+xt = testdata.getData()
+
+x.tofile( args.file + "/train.npy" )
+xt.tofile( args.file + "/test.npy" )
+
 with tf.Session() as session:
 
   aec.initalize(session)
@@ -94,7 +104,7 @@ with tf.Session() as session:
   tStart = time.clock()
   for i in range(args.outer):
 
-    l, rl, ol, jl, jf, o = aec.optimize(session, data, args.inner) 
+    l, rl, ol, jl, jf, o, tl, trl, tol, tjl, tjf, to = aec.optimize(session, data, args.inner, testdata) 
     tCurrent = time.clock()
     f.write( "time elpased " + str(tCurrent - tStart) + "\n"  )
     #f.write( "train lloss %s" % ll
@@ -112,11 +122,34 @@ with tf.Session() as session:
 
     rx = aec.xr[-1].eval( feed_dict={ aec.x: x, 
                                       aec.noise: np.zeros(x.shape)  })
+    rxt = aec.xr[-1].eval( feed_dict={ aec.x: xt, 
+                                      aec.noise: np.zeros(xt.shape)  })
     
     f.flush()
-    rx.tofile( args.file + "/iteration-{:0>5d}.npy".format( (i+1)*args.inner ) )
+    rx.tofile( args.file + "/iteration-{:0>5d}-train.npy".format( (i+1)*args.inner ) )
+    rxt.tofile( args.file + "/iteration-{:0>5d}-test.npy".format( (i+1)*args.inner ) )
+
+    trainRes[i, :] = np.array(  [l,  rl,  ol,  jl,  np.mean(np.sqrt(jf)),  o] )
+    testRes[i, :]  = np.array( [tl, trl, tol, tjl, np.mean(np.sqrt(tjf)), to] )
+    
+
+
+#plot risk progression 
+plt.tick_params(axis='both', which='major', labelsize=24)
+plt.tick_params(axis='both', which='minor', labelsize=17)
+plt.plot( np.array(range(args.outer)) , 
+          np.sqrt( trainRes[:, 1] ), c="#028C2F", linewidth=4)
+plt.plot( np.array(range(args.outer)) , 
+          np.sqrt( testRes[:, 1] ),  c="#3C007E", linewidth=4, ls="--")
+plt.xlabel('Iterations (in {0})'.format(args.inner), fontsize=30)
+plt.ylabel('Root mean square error', fontsize=30)
+plt.ylim( ymin = 0, ymax=0.35 )
+plt.tight_layout()
+plt.savefig( args.file + "/loss.pdf" )
+plt.clf()
     
 
     
+
 
 

@@ -42,7 +42,7 @@ python run-aec-sine.py \
 mkdir penalty-ortho-3
 python run-aec-sine.py \
   --dimension 50 100 200\
-  --alpha 0.005 \
+  --alpha 0.01 \
   --beta 0. \
   --gamma 0. \
   --sigma 0. \
@@ -56,4 +56,40 @@ python run-aec-sine.py \
   --inner 200 \
   --outer 100 \
   --file './penalty-ortho-3'
+
+mkdir penalty-ortho-4
+python run-aec-sine.py \
+  --dimension 50 100 200\
+  --alpha 0.005 \
+  --beta 0. \
+  --gamma 0. \
+  --sigma 0. \
+  --noise 0.1 \
+  --npoints 100 \
+  --weights 0.14 \
+  --stochastic 0 \
+  --factor 1 \
+  --frate 0 \
+  --lrate 0.00001 \
+  --inner 200 \
+  --outer 100 \
+  --file './penalty-ortho-4'
+
+mkdir penalty-ortho-5
+python run-aec-sine.py \
+  --dimension 50 100 200\
+  --alpha 0.001 \
+  --beta 0. \
+  --gamma 0. \
+  --sigma 0. \
+  --noise 0.1 \
+  --npoints 100 \
+  --weights 0.14 \
+  --stochastic 0 \
+  --factor 1 \
+  --frate 0 \
+  --lrate 0.00001 \
+  --inner 200 \
+  --outer 100 \
+  --file './penalty-ortho-5'
 

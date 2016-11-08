@@ -21,6 +21,7 @@ class Sine(object):
     def getBatch(self, npoints):
         index = np.random.random_integers(0, self.data.shape[0]-1, npoints)
         return self.data[index, :]
+    
 
     def getDimension(self):
         return 2

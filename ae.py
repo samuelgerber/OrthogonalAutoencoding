@@ -26,7 +26,7 @@ class AutoEncoder(object):
 
         #Use stochastic batch sizes. If 0 no stoachastic training
         self.stochastic = 0
-        #Nosie level for denosiing optimization
+        #Noise level for denosiing optimization
         self.sigma = 0
         #use linear decoder
         self.linear = False
@@ -292,21 +292,22 @@ class AutoEncoder(object):
 
 
 
-    def optimize(self, session, data, nsteps):
+    def optimize(self, session, data, nsteps, testdata):
 
        if self.stochastic == 0:
           inp = data.getData()
   
+
        for i in range(nsteps):
 
            if self.stochastic > 0:
-              inp = data.getBatch(self.stochastic)
+              inp = data.getBatch( self.stochastic )
 
            if self.sigma > 0:
               #noise = np.random.uniform(-self.sigma, self.sigma, inp.shape)
-              noise = np.random.normal(0, self.sigma, inp.shape) 
+              noise = np.random.normal( 0, self.sigma, inp.shape ) 
            else:
-              noise = np.zeros(inp.shape) 
+              noise = np.zeros( inp.shape ) 
          
            #self.linesearch(session, inp, noise) 
            
@@ -315,18 +316,33 @@ class AutoEncoder(object):
                                self.alpha * self.factor), 
                                self._beta: np.full([1], self.beta * self.factor ) } ) 
            
-           
            #self.alpha = 0.1/l
-           self.factor = min(self.factor + self.rate, self.maxFactor)
+           self.factor = min( self.factor + self.rate, self.maxFactor)
        
+     
+
+
+
+
        l, rl, ol, jl, jf, o = session.run( [ self.loss, self.l2loss, self.oloss,
                                           self.Jloss, self.JF, self.ortho ], feed_dict={ self.x: inp, 
                                           self.noise: noise, self._alpha: np.full([1], 
                                           self.alpha * self.factor),  self._beta:
                                           np.full([1], self.beta * self.factor ) } )
+       
+       tdata = testdata.getData()
+       tnoise = np.zeros( tdata.shape )
+       
+       tl, trl, tol, tjl, tjf, to = session.run( [ self.loss, self.l2loss, self.oloss,
+                                          self.Jloss, self.JF, self.ortho ], feed_dict={ self.x: tdata, 
+                                          self.noise: tnoise, self._alpha: np.full([1], 
+                                          self.alpha * self.factor),  self._beta:
+                                          np.full([1], self.beta * self.factor ) } )
 
-       return l, rl, ol, jl, jf, o
+       return  l,  rl,  ol,  jl,  jf,  o, tl, trl, tol, tjl, tjf, to 
    
+
+
 
 
     def optimizelayers(self, session, data, nsteps):
